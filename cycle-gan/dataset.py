@@ -3,36 +3,36 @@ import os
 from torch.utils.data import Dataset
 import numpy as np
 
-class HorseZebraDataset(Dataset):
-    def __init__(self, root_zebra, root_horse, transform=None):
-        self.root_zebra = root_zebra
-        self.root_horse = root_horse
+class MakeupDataset(Dataset):
+    def __init__(self, root_trainA, root_trainB, transform=None):
+        self.root_trainA = root_trainA
+        self.root_trainB = root_trainB
         self.transform = transform
 
-        self.zebra_images = os.listdir(root_zebra)
-        self.horse_images = os.listdir(root_horse)
-        self.length_dataset = max(len(self.zebra_images), len(self.horse_images)) # 1000, 1500
-        self.zebra_len = len(self.zebra_images)
-        self.horse_len = len(self.horse_images)
+        self.trainA_images = os.listdir(root_trainA)
+        self.trainB_images = os.listdir(root_trainB)
+        self.length_dataset = max(len(self.trainA_images), len(self.trainB_images)) # 1000, 1500
+        self.trainA_len = len(self.trainA_images)
+        self.trainB_len = len(self.trainB_images)
 
     def __len__(self):
         return self.length_dataset
 
     def __getitem__(self, index):
-        zebra_img = self.zebra_images[index % self.zebra_len]
-        horse_img = self.horse_images[index % self.horse_len]
+        trainA_img = self.trainA_images[index % self.trainA_len]
+        trainB_img = self.trainB_images[index % self.trainB_len]
 
-        zebra_path = os.path.join(self.root_zebra, zebra_img)
-        horse_path = os.path.join(self.root_horse, horse_img)
+        trainA_path = os.path.join(self.root_trainA, trainA_img)
+        trainB_path = os.path.join(self.root_trainB, trainB_img)
 
-        zebra_img = np.array(Image.open(zebra_path).convert("RGB"))
-        horse_img = np.array(Image.open(horse_path).convert("RGB"))
+        trainA_img = np.array(Image.open(trainA_path).convert("RGB"))
+        trainB_img = np.array(Image.open(trainB_path).convert("RGB"))
 
         if self.transform:
-            augmentations = self.transform(image=zebra_img, image0=horse_img)
-            zebra_img = augmentations["image"]
-            horse_img = augmentations["image0"]
+            augmentations = self.transform(image=trainA_img, image0=trainB_img)
+            trainA_img = augmentations["image"]
+            trainB_img = augmentations["image0"]
 
-        return zebra_img, horse_img
+        return trainA_img, trainB_img
 
 

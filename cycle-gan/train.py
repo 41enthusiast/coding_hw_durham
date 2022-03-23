@@ -8,40 +8,48 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 from torchvision.utils import save_image
 
+from torch.utils.tensorboard import SummaryWriter
+
 import argparse
 
-from dataset import HorseZebraDataset
+from dataset import MakeupDataset
 from model import Generator, Discriminator
+from utils import save_checkpoint, load_checkpoint
 
-def train_fn(args, disc_H, disc_Z, gen_Z, gen_H, loader, opt_disc, opt_gen, l1, mse, d_scaler, g_scaler):
+def train_fn(disc_H, disc_Z, gen_Z, gen_H, loader, opt_disc, opt_gen, l1, mse, d_scaler, g_scaler, epoch):
     H_reals = 0
     H_fakes = 0
     loop = tqdm(loader, leave=True)
 
-    for idx, (zebra, horse) in enumerate(loop):
-        zebra = zebra.to(device)
-        horse = horse.to(device)
+    for idx, (trainA, trainB) in enumerate(loop):
+        trainA = trainA.to(DEVICE)
+        trainB = trainB.to(DEVICE)
 
         # Train Discriminators H and Z
         with torch.cuda.amp.autocast():
-            fake_horse = gen_H(zebra)
-            D_H_real = disc_H(horse)
-            D_H_fake = disc_H(fake_horse.detach())
+            fake_trainB = gen_H(trainA)
+            D_H_real = disc_H(trainB)
+            D_H_fake = disc_H(fake_trainB.detach())
             H_reals += D_H_real.mean().item()
             H_fakes += D_H_fake.mean().item()
             D_H_real_loss = mse(D_H_real, torch.ones_like(D_H_real))
             D_H_fake_loss = mse(D_H_fake, torch.zeros_like(D_H_fake))
             D_H_loss = D_H_real_loss + D_H_fake_loss
 
-            fake_zebra = gen_Z(horse)
-            D_Z_real = disc_Z(zebra)
-            D_Z_fake = disc_Z(fake_zebra.detach())
+            fake_trainA = gen_Z(trainB)
+            D_Z_real = disc_Z(trainA)
+            D_Z_fake = disc_Z(fake_trainA.detach())
             D_Z_real_loss = mse(D_Z_real, torch.ones_like(D_Z_real))
             D_Z_fake_loss = mse(D_Z_fake, torch.zeros_like(D_Z_fake))
             D_Z_loss = D_Z_real_loss + D_Z_fake_loss
 
             # put it togethor
             D_loss = (D_H_loss + D_Z_loss)/2
+
+            tb.add_scalars('Individual Generator and Discriminator Losses' ,
+                          {'D_H': D_H_loss,
+                           'D_Z': D_Z_loss
+                           }, epoch*len(loader)*BATCH_SIZE + idx)
 
         opt_disc.zero_grad()
         d_scaler.scale(D_loss).backward()
@@ -51,47 +59,66 @@ def train_fn(args, disc_H, disc_Z, gen_Z, gen_H, loader, opt_disc, opt_gen, l1, 
         # Train Generators H and Z
         with torch.cuda.amp.autocast():
             # adversarial loss for both generators
-            D_H_fake = disc_H(fake_horse)
-            D_Z_fake = disc_Z(fake_zebra)
+            D_H_fake = disc_H(fake_trainB)
+            D_Z_fake = disc_Z(fake_trainA)
+            
             loss_G_H = mse(D_H_fake, torch.ones_like(D_H_fake))
             loss_G_Z = mse(D_Z_fake, torch.ones_like(D_Z_fake))
 
             # cycle loss
-            cycle_zebra = gen_Z(fake_horse)
-            cycle_horse = gen_H(fake_zebra)
-            cycle_zebra_loss = l1(zebra, cycle_zebra)
-            cycle_horse_loss = l1(horse, cycle_horse)
+            cycle_trainA = gen_Z(fake_trainB)
+            cycle_trainB = gen_H(fake_trainA)
+            
+            cycle_trainA_loss = l1(trainA, cycle_trainA)
+            cycle_trainB_loss = l1(trainB, cycle_trainB)
 
             # identity loss (remove these for efficiency if you set lambda_identity=0)
-            identity_zebra = gen_Z(zebra)
-            identity_horse = gen_H(horse)
-            identity_zebra_loss = l1(zebra, identity_zebra)
-            identity_horse_loss = l1(horse, identity_horse)
+            identity_trainA = gen_Z(trainA)
+            identity_trainB = gen_H(trainB)
+            
+            identity_trainA_loss = l1(trainA, identity_trainA)
+            identity_trainB_loss = l1(trainB, identity_trainB)
+
+            tb.add_scalars('Individual Generator and Discriminator Losses' ,
+                          {'G_H': loss_G_H,
+                           'G_Z': loss_G_Z
+                           }, epoch*len(loader)*BATCH_SIZE + idx)
 
             # add all togethor
             G_loss = (
                 loss_G_Z
                 + loss_G_H
-                + cycle_zebra_loss * args.lambda_cycle 
-                + cycle_horse_loss * args.lambda_cycle
-                + identity_horse_loss * args.lambda_identity
-                + identity_zebra_loss * args.lambda_identity
+                + cycle_trainA_loss * LAMBDA_CYCLE
+                + cycle_trainB_loss * LAMBDA_CYCLE
+                + identity_trainB_loss * LAMBDA_IDENTITY
+                + identity_trainA_loss * LAMBDA_IDENTITY
             )
+
+            tb.add_scalars('Discriminator and Generator Losses', 
+                          {'Discriminator': D_loss,
+                           'Generator': G_loss
+                           }, epoch*len(loader)*BATCH_SIZE + idx)
+            
+
 
         opt_gen.zero_grad()
         g_scaler.scale(G_loss).backward()
         g_scaler.step(opt_gen)
         g_scaler.update()
 
-        if idx % args.log_interval == 0:
-            save_image(fake_horse*0.5+0.5, f"outputs/horse_{idx}.png")
-            save_image(fake_zebra*0.5+0.5, f"outputs/zebra_{idx}.png")
+        if idx % 200 == 0:
+
+            grid = torchvision.utils.make_grid(fake_trainB)*0.5+0.5
+            tb.add_image('images_trainB', grid, epoch*len(loader)*BATCH_SIZE + idx )
+            save_image(grid, f"saved_images/trainB/trainB_{epoch*len(loader)*BATCH_SIZE + idx}.png")
+            grid = torchvision.utils.make_grid(fake_trainA)
+            tb.add_image('images_trainA', grid, epoch*len(loader)*BATCH_SIZE + idx)
+            save_image(grid, f"saved_images/trainA/trainA_{epoch*len(loader)*BATCH_SIZE + idx}.png")
 
         loop.set_postfix(H_real=H_reals/(idx+1), H_fake=H_fakes/(idx+1))
 
-
-
 def main():
+    tb = SummaryWriter()
     #global vis, loss_function_plot
 
     # Training settings
@@ -132,32 +159,10 @@ def main():
     parser.add_argument('--load-model', action='store_true', default=False,
                         help='For Loading the Model')
 
-    #parser.add_argument('--visdom_server', default='http://localhost',
-    #                    help='Visdom server')
-    #parser.add_argument('--visdom_port', default=8097,
-    #                    help='Visdom port')
-    #parser.add_argument('--visdom_env_name', default='main',
-    #                    help='Visdom main experiment type')
+    
     args = parser.parse_args()
     use_cuda = not args.no_cuda and torch.cuda.is_available()
 
-    # Connect to the Visdom server
-    #vis = visdom.Visdom(server=args.visdom_server, port=args.visdom_port
-    #        , env = args.visdom_env_name)
-
-    # Create a new plot for the loss function
-    #loss_function_plot = vis.line(X=torch.zeros((1,)).cpu(), Y=torch.zeros((1,)).cpu(),
-    #        opts={
-    #            "xlabel":"Iteration",
-    #            "ylabel":"Loss",
-    #            "title":"Loss over time",
-    #            "legend":["Classification loss"],
-    #            "layoutopts":{
-    #                "plotly": {
-    #                    "yaxis": { "type": "log" }
-    #                    }
-    #                }
-    #            })
     torch.manual_seed(args.seed)
 
     device = torch.device("cuda" if not args.no_cuda else "cpu")
@@ -207,11 +212,11 @@ def main():
             args.CKPT+'criticz.pth.tar', disc_Z, opt_disc, args.lr,
         )
 
-    dataset = HorseZebraDataset(
+    dataset = MakeupDataset(
         
         root_horse=args.train_dir+"/trainA", root_zebra=args.train_dir+"/trainB", transform=transforms
     )
-    val_dataset = HorseZebraDataset(
+    val_dataset = MakeupDataset(
        root_horse=args.train_dir+"/testA", root_zebra=args.train_dir+"/testB", transform=transforms
     )
     val_loader = DataLoader(
