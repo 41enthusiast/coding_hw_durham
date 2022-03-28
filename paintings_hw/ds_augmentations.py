@@ -1,6 +1,9 @@
 import torchvision.transforms.functional as tvf
 from torchvision import transforms
+import torch
+from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler, SequentialSampler
 import numpy as np
+import random
 
 def random_rotate(image):
     if random.random() > 0.5:
@@ -68,7 +71,7 @@ class PretrainingDatasetWrapper(Dataset):
     def __len__(self): return len(self.ds)
     
     def __getitem_internal__(self, idx, preprocess=True):
-        this_image_raw, _ = self.ds[idx]
+        this_image_raw, ds_cls = self.ds[idx]
         
         if self.debug:
             random.seed(idx)
@@ -86,7 +89,7 @@ class PretrainingDatasetWrapper(Dataset):
             t1 = transforms.ToTensor()(t1)
             t2 = transforms.ToTensor()(t2)
 
-        return (t1, t2), torch.tensor(0)
+        return (t1, t2), torch.tensor(ds_cls)
 
     def __getitem__(self, idx):
         return self.__getitem_internal__(idx, True)
