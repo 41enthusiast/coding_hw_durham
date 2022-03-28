@@ -1,2 +1,5 @@
 #ignore the folder with data
 cycle-gan/datasets/
+mv_test2/
+paintings_hw/datasets/
+paintings_hw/data
