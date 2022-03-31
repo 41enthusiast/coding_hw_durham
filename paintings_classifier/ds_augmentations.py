@@ -84,7 +84,7 @@ class AugDatasetWrapper(Dataset):
         else:
             t = transforms.ToTensor()(t)
 
-        return t, torch.tensor(ds_cls)
+        return t, torch.tensor(ds_cls).float().unsqueeze(0)
 
     def __getitem__(self, idx):
         return self.__getitem_internal__(idx, True)
