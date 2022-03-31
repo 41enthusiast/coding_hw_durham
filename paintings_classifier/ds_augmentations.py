@@ -5,6 +5,16 @@ from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler, Sequentia
 import numpy as np
 import random
 
+class WrapWithRandomParams():
+    def __init__(self, constructor, ranges):
+        self.constructor = constructor
+        self.ranges = ranges
+    
+    def __call__(self, image):
+        randoms = [float(np.random.uniform(low, high)) for _, (low, high) in zip(range(len(self.ranges)), self.ranges)]
+        return self.constructor(*randoms)(image)
+            
+
 class AugDatasetWrapper(Dataset):
     def __init__(self, ds: Dataset, target_size=(96, 96), debug=False):
         super().__init__()
