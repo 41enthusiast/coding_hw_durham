@@ -5,6 +5,11 @@ from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler, Sequentia
 import numpy as np
 import random
 
+def random_rotate(image):
+    if random.random() > 0.5:
+        return tvf.rotate(image, angle=random.choice((0, 90, 180, 270)))
+    return image
+
 class WrapWithRandomParams():
     def __init__(self, constructor, ranges):
         self.constructor = constructor
