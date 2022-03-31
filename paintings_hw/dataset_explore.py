@@ -1,5 +1,4 @@
 import pandas as pd
-from glob import glob
 data_path = '../../DURHAM_EXPORTS-20220323T162326Z-001/DURHAM_EXPORTS'
 folders = ['Shakespeare', 'Queen_Victoria']
 
