@@ -78,7 +78,7 @@ class AugDatasetWrapper(Dataset):
             random.seed(idx)
             t = self.randomize(this_image_raw)  
         else:
-            t1 = self.randomize(this_image_raw)
+            t = self.randomize(this_image_raw)
         if preprocess:
             t = self.preprocess(t)
         else:
