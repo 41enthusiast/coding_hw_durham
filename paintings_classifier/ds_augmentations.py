@@ -10,6 +10,23 @@ def random_rotate(image):
         return tvf.rotate(image, angle=random.choice((0, 90, 180, 270)))
     return image
 
+class ResizedRotation():
+    def __init__(self, angle, output_size=(96, 96)):
+        self.angle = angle
+        self.output_size = output_size
+        
+    def angle_to_rad(self, ang): return np.pi * ang / 180.0
+        
+    def __call__(self, image):
+        w, h = image.size
+        new_h = int(np.abs(w * np.sin(self.angle_to_rad(90 - self.angle))) + np.abs(h * np.sin(self.angle_to_rad(self.angle))))
+        new_w = int(np.abs(h * np.sin(self.angle_to_rad(90 - self.angle))) + np.abs(w * np.sin(self.angle_to_rad(self.angle))))
+        img = tvf.resize(image, (new_w, new_h))
+        img = tvf.rotate(img, self.angle)
+        img = tvf.center_crop(img, self.output_size)
+        return img
+
+
 class WrapWithRandomParams():
     def __init__(self, constructor, ranges):
         self.constructor = constructor
