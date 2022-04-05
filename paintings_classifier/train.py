@@ -32,12 +32,6 @@ class FinetunedClassifierModule(pl.LightningModule):
     def total_steps(self):
         return len(self.train_dataloader()) // self.hparam.epochs
 
-    def preprocessing(self):
-        return transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
-
     def get_dataloader(self, split):
         ds = ImageFolder(self.hparam.ds_name)  # change this for the datasets
         if split == 'train':
@@ -96,51 +90,49 @@ class FinetunedClassifierModule(pl.LightningModule):
 
 
 def train(args, device):
-    train_idx, val_idx = get_train_val_split(args.ds_name, get_n_classes = True)
+    train_idx, val_idx, n_classes = get_train_val_split(args.ds_name, get_n_classes = True)
 
     # using the suggested lr
     hparams_cls = Namespace(
         lr=args.lr,
         epochs=args.epochs,
         batch_size=args.batch_size,
-        n_classes=2,
+        n_classes=n_classes,
         train_ids=train_idx,
         validation_ids=val_idx,
-        hidden_size=512,
-        freeze_base=True,
-        img_size=(512, 512)
+        hidden_size=args.hidden_size,
+        freeze_base=args.freeze_base,
+        img_size=(args.image_size, args.image_size)
     )
 
     module = FinetunedClassifierModule(hparams_cls)
 
-    logger = WandbLogger(project='finetuning-classifier-on-paintings', name='uncropped')
-    logger.watch(module, log='all', log_freq=1)
+    logger = WandbLogger(project='finetuning-classifier-on-paintings',
+                         name='uncropped',
+                         config={
+                             'learning_rate': args.lr,
+                             'architecture': 'CNN',
+                             'dataset': 'Paintings',
+                             'epochs': args.epochs,
+                         })
+    logger.watch(module, log='all', log_freq=args.log_interval)
 
     trainer = pl.Trainer(gpus=1, max_epochs=hparams_cls.epochs, logger=logger,
-                         log_every_n_steps=1)  # need the last arg to log the training iterations per step
+                         log_every_n_steps=args.log_interval)  # need the last arg to log the training iterations per step
 
     trainer.fit(module)
 
 
 if __name__ == 'main':
-    # using the suggested lr
-    hparams_cls = Namespace(
-        lr=8.317637711026709e-05,
-        epochs=10,
-        batch_size=16,
-        n_classes=2,
-        train_ids=train_idx,
-        validation_ids=val_idx,
-        hidden_size=512,
-        freeze_base=True,
-        img_size=(512, 512)
-    )
 
+    #add an option to do hyperparameter search (the lr finetuning bit)
     # Training settings
     parser = argparse.ArgumentParser(description='Paintings Classifier')
 
     parser.add_argument('--ds-name', type=str, default='datasets/paintings', metavar='S',
                         help='Name of the dataset to train and validate on (default: datasets/paintings)')
+    parser.add_argument('--image-size', type=int, default=512, metavar='N',
+                        help='input image size for model training and inference (default: 512)')
 
     parser.add_argument('--batch-size', type=int, default=16, metavar='N',
                         help='input batch size for training (default: 16)')
@@ -157,6 +149,8 @@ if __name__ == 'main':
 
     parser.add_argument('--use-cuda', action='store_true', default=True,
                         help='enables/disables CUDA training')
+    parser.add_argument('--num-workers', type=int, default=4, metavar='N',
+                        help='Number of workers (default: 4)')
 
     parser.add_argument('--log-interval', type=int, default=50, metavar='N',
                         help='how many batches to wait before logging training status (default: 50)')
