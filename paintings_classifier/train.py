@@ -3,6 +3,7 @@ import argparse
 
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning.callbacks import Callback
 
 from torch import nn
 from torch.optim.lr_scheduler import CosineAnnealingLR
@@ -15,7 +16,7 @@ from torchvision import transforms
 from torchvision.datasets import ImageFolder
 
 from models import FinetunedModel
-from utils import get_train_val_split
+from utils import *
 from ds_augmentations import AugDatasetWrapper
 
 
@@ -28,6 +29,7 @@ class FinetunedClassifierModule(pl.LightningModule):
         self.model = FinetunedModel(hparams.n_classes, hparams.freeze_base,
                                     self.hparam.hidden_size)
         self.loss = nn.BCEWithLogitsLoss()
+        self.device = device
 
     def total_steps(self):
         return len(self.train_dataloader()) // self.hparam.epochs
@@ -69,6 +71,7 @@ class FinetunedClassifierModule(pl.LightningModule):
         return self.step(batch, "train")
 
     def validation_step(self, batch, batch_idx):
+        self.log_dict(evaluate(self.val_dataloader(), self.model.to(device)))
         return self.step(batch, "val")
 
     def test_step(self, batch, batch_idx):
@@ -89,6 +92,22 @@ class FinetunedClassifierModule(pl.LightningModule):
         return [optimizer], schedulers
 
 
+class LogPredictionsCallback(Callback):
+
+    def on_validation_batch_end(self, trainer, module, outputs, batch, batch_idx, dataloader_idx):
+
+        #confusion matrix
+        cm = make_confusion_matrix(module, module.val_dataloader(), module.device)
+        plot_confusion_matrix(cm, module.hparam.n_classes)
+
+        # log most and least confident images
+        (lc_scores, lc_imgs), (mc_scores, mc_imgs) = get_most_and_least_confident_predictions(module.model, module.val_dataloader(), module.device)
+        lc_captions = [f'Confidence score: {score}' for score in lc_scores]
+        trainer.logger.log_image(key='Least Confident Images', images = [img for img in lc_imgs], caption=lc_captions)
+        mc_captions = [f'Confidence score: {score}' for score in mc_scores]
+        trainer.logger.log_image(key='Most Confident Images', images=[img for img in mc_imgs], caption=mc_captions)
+
+
 def train(args, device):
     train_idx, val_idx, n_classes = get_train_val_split(args.ds_name, get_n_classes = True)
 
@@ -102,7 +121,8 @@ def train(args, device):
         validation_ids=val_idx,
         hidden_size=args.hidden_size,
         freeze_base=args.freeze_base,
-        img_size=(args.image_size, args.image_size)
+        img_size=(args.image_size, args.image_size),
+        device = device,
     )
 
     module = FinetunedClassifierModule(hparams_cls)
@@ -117,7 +137,10 @@ def train(args, device):
                          })
     logger.watch(module, log='all', log_freq=args.log_interval)
 
-    trainer = pl.Trainer(gpus=1, max_epochs=hparams_cls.epochs, logger=logger,
+    trainer = pl.Trainer(gpus=1,
+                         max_epochs=hparams_cls.epochs,
+                         logger=logger,
+                         callbacks= [LogPredictionsCallback()],
                          log_every_n_steps=args.log_interval)  # need the last arg to log the training iterations per step
 
     trainer.fit(module)

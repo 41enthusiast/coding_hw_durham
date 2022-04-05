@@ -10,19 +10,18 @@ from torchvision.utils import make_grid
 
 
 # evaluating the model
-def evaluate(data_loader, module):
+def evaluate(data_loader, model):
     with torch.no_grad():
         progress = ["/", "-", "\\", "|", "/", "-", "\\", "|"]
-        module.eval().cuda()
+        model.eval().cuda()
         true_y, pred_y = [], []
         for i, batch_ in enumerate(data_loader):
             X, y = batch_
             print(progress[i % len(progress)], end="\r")
-            y_pred = (module(X.cuda()).sigmoid() > 0.5).int().squeeze()#threshold of 0.5 chosen
+            y_pred = (model(X.cuda()).sigmoid() > 0.5).int().squeeze()#threshold of 0.5 chosen
             true_y.extend(y.squeeze().cpu())
             pred_y.extend(y_pred.cpu())
-        print(classification_report(true_y, pred_y, digits=3))
-        return true_y, pred_y
+        return classification_report(true_y, pred_y, digits=3, output_dict=True)
 
 
 def get_train_val_split(args, get_n_classes):
@@ -116,12 +115,12 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
     plt.xlabel('Predicted label')
 
 
-def get_most_and_least_confident_predictions(module, device):
+def get_most_and_least_confident_predictions(model, loader, device):
     # get model prediction for the validation dataset and all images for later use
     preds = torch.tensor([]).to(device)
     all_images = torch.tensor([]).to(device)
-    loader = module.val_dataloader()
-    model = module.model.to(device)
+    #loader = module.val_dataloader()
+    #model = module.model.to(device)
     for batch in loader:
         images, _ = batch
         pred_batch = model(images.to(device))
@@ -136,11 +135,11 @@ def get_most_and_least_confident_predictions(module, device):
     confidence = preds.sigmoid()
 
     # get indices with most and least confident scores
-    most_confident = confidence.topk(4, dim=0).indices
-    least_confident = confidence.topk(4, dim=0, largest=False).indices
+    mc_scores, most_confident = confidence.topk(4, dim=0)
+    lc_scores, least_confident = confidence.topk(4, dim=0, largest=False)
 
     # get the images according to confidence scores, 4 each
     mc_imgs = make_grid(all_images[most_confident.squeeze()], 4)
     lc_imgs = make_grid(all_images[least_confident.squeeze()], 4)
 
-    return mc_imgs, lc_imgs
+    return (mc_scores, mc_imgs), (lc_scores, lc_imgs)
