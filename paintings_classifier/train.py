@@ -19,6 +19,7 @@ from torchvision.datasets import ImageFolder
 from models import FinetunedModel
 from utils import *
 from ds_augmentations import AugDatasetWrapper
+import pandas as pd
 
 
 # training loop components
@@ -77,11 +78,8 @@ class FinetunedClassifierModule(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         return self.step(batch, "val")
 
-    def test_step(self, batch, batch_idx):
-        self.log_dict(evaluate(self.test_dataloader(), self.model.to(device)))
-        return self.step(batch, "test")
-
     def validation_end(self, outputs):
+        
         if len(outputs) == 0:
             return {"val_loss": torch.tensor(0)}
         else:
@@ -102,7 +100,8 @@ class LogPredictionsCallback(Callback):
 
         #confusion matrix
         cm = make_confusion_matrix(module, module.val_dataloader(), module.device)
-        plot_confusion_matrix(cm, module.hparam.class_names)
+        cm_img = plot_confusion_matrix(cm, module.hparam.class_names)
+        trainer.logger.log_image(key='Confusion matrix', images = [cm_img], caption=['Confusion matrix for shakespeare and queen victoria images'])
 
         # log most and least confident images
         (lc_scores, lc_imgs), (mc_scores, mc_imgs) = get_most_and_least_confident_predictions(module.model, module.val_dataloader(), module.device)
@@ -110,6 +109,15 @@ class LogPredictionsCallback(Callback):
         trainer.logger.log_image(key='Least Confident Images', images = [img for img in lc_imgs], caption=lc_captions)
         mc_captions = [f'Confidence score: {score}' for score in mc_scores]
         trainer.logger.log_image(key='Most Confident Images', images=[img for img in mc_imgs], caption=mc_captions)
+    
+    
+    def on_train_end(self, trainer, module):
+        eval_metrics = evaluate(module.val_dataloader(), module.model)
+        df = pd.DataFrame(eval_metrics).transpose()
+        #print(list(df.columns), df.values.shape)
+        trainer.logger.log_table(key="Evaluation metrics", columns=list(df.columns), data=df.values)
+        trainer.logger.experiment.summary(eval_metrics)
+        #trainer.logger.experiment.log(eval_metrics)
 
 
 def train(args, device):
@@ -150,7 +158,7 @@ def train(args, device):
                          log_every_n_steps=args.log_interval)  # need the last arg to log the training iterations per step
 
     trainer.fit(module)
-    trainer.test(module)
+    
 
 
 if __name__ == '__main__':
@@ -189,7 +197,7 @@ if __name__ == '__main__':
     parser.add_argument('--save-model', action='store_true', default=False,
                         help='For Saving the current Model')
 
-    parser.add_argument('--experiment-name', type=str, default = 'experiments/finetuning-classifier-on-paintings',
+    parser.add_argument('--experiment-name', type=str, default = 'finetuning-classifier-on-paintings',
                         help='Model experiment name')
     parser.add_argument('--ver-name', type=str, default = 'paintings',
                         help="Model experiment's version/run name")

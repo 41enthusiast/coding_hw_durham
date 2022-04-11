@@ -20,8 +20,12 @@ def evaluate(data_loader, model):
             X, y = batch_
             print(progress[i % len(progress)], end="\r")
             y_pred = (model(X.cuda()).sigmoid() > 0.5).int().squeeze()#threshold of 0.5 chosen
+            #print(y.shape, y_pred.shape)
             true_y.extend(y.squeeze().cpu())
             pred_y.extend(y_pred.cpu())
+        true_y = torch.stack(true_y)
+        pred_y = torch.stack(pred_y)
+        print(true_y.shape, pred_y.shape)
         return classification_report(true_y, pred_y, digits=3, output_dict=True)
 
 
@@ -125,25 +129,31 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
 def get_most_and_least_confident_predictions(model, loader, device):
     # get model prediction for the validation dataset and all images for later use
     preds = torch.tensor([]).to(device)
+    tgts = torch.tensor([]).to(device)
     all_images = torch.tensor([]).to(device)
     #loader = module.val_dataloader()
     #model = module.model.to(device)
     for batch in loader:
-        images, _ = batch
+        images, y = batch
         pred_batch = model(images.to(device))
         preds = torch.cat(
             (preds, pred_batch)
+            , dim=0
+        )
+        tgts = torch.cat(
+            (tgts, y.squeeze().to(device))
             , dim=0
         )
         all_images = torch.cat(
             (all_images, images.to(device)),
             dim=0
         )
-    confidence = preds.sigmoid()
+    confidence = (preds.sigmoid()-tgts).abs()
+    print(confidence.shape)
 
     # get indices with most and least confident scores
-    lc_scores, least_confident = confidence.topk(4, dim=0)
-    mc_scores, most_confident = confidence.topk(4, dim=0, largest=False)
+    mc_scores, most_confident = confidence.topk(4, dim=0)
+    lc_scores, least_confident = confidence.topk(4, dim=0, largest=False)
 
     # get the images according to confidence scores, 4 each
     mc_imgs = all_images[most_confident.squeeze()]
