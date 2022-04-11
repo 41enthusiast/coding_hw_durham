@@ -1,3 +1,4 @@
+import warnings
 from argparse import Namespace
 import argparse
 
@@ -29,7 +30,7 @@ class FinetunedClassifierModule(pl.LightningModule):
         self.model = FinetunedModel(hparams.n_classes, hparams.freeze_base,
                                     self.hparam.hidden_size)
         self.loss = nn.BCEWithLogitsLoss()
-        self.device = device
+        #self.device = device
 
     def total_steps(self):
         return len(self.train_dataloader()) // self.hparam.epochs
@@ -101,7 +102,7 @@ class LogPredictionsCallback(Callback):
 
         #confusion matrix
         cm = make_confusion_matrix(module, module.val_dataloader(), module.device)
-        plot_confusion_matrix(cm, module.hparam.n_classes)
+        plot_confusion_matrix(cm, module.hparam.class_names)
 
         # log most and least confident images
         (lc_scores, lc_imgs), (mc_scores, mc_imgs) = get_most_and_least_confident_predictions(module.model, module.val_dataloader(), module.device)
@@ -120,14 +121,14 @@ def train(args, device):
         epochs=args.epochs,
         batch_size=args.batch_size,
         n_classes=n_classes,
-        class_names=class_names
+        class_names=classes_names,
         train_ids=train_idx,
         validation_ids=val_idx,
         hidden_size=args.hidden_size,
         freeze_base=args.freeze_base,
         img_size=(args.image_size, args.image_size),
         device = device,
-        ds_name=args.ds_name
+        ds_name=args.ds_name,
     )
 
     module = FinetunedClassifierModule(hparams_cls)
@@ -153,6 +154,8 @@ def train(args, device):
 
 
 if __name__ == '__main__':
+
+    warnings.filterwarnings("ignore", "(Possibly )?corrupt EXIF data", UserWarning)
 
     #add an option to do hyperparameter search (the lr finetuning bit)
     # Training settings
@@ -186,7 +189,7 @@ if __name__ == '__main__':
     parser.add_argument('--save-model', action='store_true', default=False,
                         help='For Saving the current Model')
 
-    parser.add_argument('--experiment-name', type=str, default = 'finetuning-classifier-on-paintings',
+    parser.add_argument('--experiment-name', type=str, default = 'experiments/finetuning-classifier-on-paintings',
                         help='Model experiment name')
     parser.add_argument('--ver-name', type=str, default = 'paintings',
                         help="Model experiment's version/run name")

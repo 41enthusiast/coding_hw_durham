@@ -97,9 +97,10 @@ def make_confusion_matrix(module, loader, device):
 def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        print("Normalized confusion matrix")
+        #print("Normalized confusion matrix")
     else:
-        print('Confusion matrix, without normalization')
+        #print('Confusion matrix, without normalization')
+        pass
 
     # set up the confusion matrix visualization
     plt.figure(figsize=(10, 10))
@@ -116,7 +117,8 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
-    plt.save_figure('temp_cm_logging.jpg')
+    plt.savefig('temp_cm_logging.jpg')
+    plt.close('all')
     return read_image('temp_cm_logging.jpg')/255
 
 
