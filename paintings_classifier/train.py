@@ -53,6 +53,9 @@ class FinetunedClassifierModule(pl.LightningModule):
     def val_dataloader(self):
         return self.get_dataloader("test")
 
+    def test_dataloader(self):
+        return self.get_dataloader("test")
+
     def forward(self, x):
         return self.model(x)
 
@@ -123,6 +126,7 @@ def train(args, device):
         freeze_base=args.freeze_base,
         img_size=(args.image_size, args.image_size),
         device = device,
+        ds_name=args.ds_name
     )
 
     module = FinetunedClassifierModule(hparams_cls)
@@ -146,7 +150,7 @@ def train(args, device):
     trainer.fit(module)
 
 
-if __name__ == 'main':
+if __name__ == '__main__':
 
     #add an option to do hyperparameter search (the lr finetuning bit)
     # Training settings

@@ -7,6 +7,7 @@ import torch
 import itertools
 import matplotlib.pyplot as plt
 from torchvision.utils import make_grid
+from torchvision.io import read_image
 
 
 # evaluating the model
@@ -135,8 +136,8 @@ def get_most_and_least_confident_predictions(model, loader, device):
     confidence = preds.sigmoid()
 
     # get indices with most and least confident scores
-    mc_scores, most_confident = confidence.topk(4, dim=0)
-    lc_scores, least_confident = confidence.topk(4, dim=0, largest=False)
+    lc_scores, least_confident = confidence.topk(4, dim=0)
+    mc_scores, most_confident = confidence.topk(4, dim=0, largest=False)
 
     # get the images according to confidence scores, 4 each
     mc_imgs = make_grid(all_images[most_confident.squeeze()], 4)
