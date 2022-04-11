@@ -41,9 +41,11 @@ def get_train_val_split(args, get_n_classes):
 
     # get the number of classes
     if get_n_classes:
-        n_classes = len(dataset.classes)
+        n_classes=len(dataset.classes)
+        class_names=dataset.classes
     else:
-        n_classes = None
+        n_classes=None
+        class_names=None
 
     # train val test split from the total dataset
     train_idx, val_idx = train_test_split(
@@ -52,7 +54,7 @@ def get_train_val_split(args, get_n_classes):
         shuffle=True,
         stratify=y
     )
-    return train_idx, val_idx, n_classes
+    return train_idx, val_idx, n_classes, class_names
 
 
 def make_confusion_matrix(module, loader, device):
@@ -74,7 +76,7 @@ def make_confusion_matrix(module, loader, device):
         return all_preds, all_tgts
 
     # set up model predictions and targets in right format for making the confusion matrix
-    preds, tgts = get_all_preds(module.model.to(device), module.val_dataloader(), device)
+    preds, tgts = get_all_preds(module.model.to(device))
     stacked = torch.stack(
         (
             tgts.squeeze()
@@ -114,6 +116,8 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
+    plt.save_figure('temp_cm_logging.jpg')
+    return read_image('temp_cm_logging.jpg')/255
 
 
 def get_most_and_least_confident_predictions(model, loader, device):
@@ -140,7 +144,7 @@ def get_most_and_least_confident_predictions(model, loader, device):
     mc_scores, most_confident = confidence.topk(4, dim=0, largest=False)
 
     # get the images according to confidence scores, 4 each
-    mc_imgs = make_grid(all_images[most_confident.squeeze()], 4)
-    lc_imgs = make_grid(all_images[least_confident.squeeze()], 4)
+    mc_imgs = all_images[most_confident.squeeze()]
+    lc_imgs = all_images[least_confident.squeeze()]
 
     return (mc_scores, mc_imgs), (lc_scores, lc_imgs)

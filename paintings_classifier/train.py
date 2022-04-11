@@ -74,10 +74,10 @@ class FinetunedClassifierModule(pl.LightningModule):
         return self.step(batch, "train")
 
     def validation_step(self, batch, batch_idx):
-        self.log_dict(evaluate(self.val_dataloader(), self.model.to(device)))
         return self.step(batch, "val")
 
     def test_step(self, batch, batch_idx):
+        self.log_dict(evaluate(self.test_dataloader(), self.model.to(device)))
         return self.step(batch, "test")
 
     def validation_end(self, outputs):
@@ -112,7 +112,7 @@ class LogPredictionsCallback(Callback):
 
 
 def train(args, device):
-    train_idx, val_idx, n_classes = get_train_val_split(args.ds_name, get_n_classes = True)
+    train_idx, val_idx, n_classes,classes_names = get_train_val_split(args, get_n_classes = True)
 
     # using the suggested lr
     hparams_cls = Namespace(
@@ -120,6 +120,7 @@ def train(args, device):
         epochs=args.epochs,
         batch_size=args.batch_size,
         n_classes=n_classes,
+        class_names=class_names
         train_ids=train_idx,
         validation_ids=val_idx,
         hidden_size=args.hidden_size,
@@ -131,8 +132,8 @@ def train(args, device):
 
     module = FinetunedClassifierModule(hparams_cls)
 
-    logger = WandbLogger(project='finetuning-classifier-on-paintings',
-                         name='uncropped',
+    logger = WandbLogger(project=args.experiment_name,
+                         name=args.ver_name,
                          config={
                              'learning_rate': args.lr,
                              'architecture': 'CNN',
@@ -148,6 +149,7 @@ def train(args, device):
                          log_every_n_steps=args.log_interval)  # need the last arg to log the training iterations per step
 
     trainer.fit(module)
+    trainer.test(module)
 
 
 if __name__ == '__main__':
@@ -183,6 +185,11 @@ if __name__ == '__main__':
                         help='how many batches to wait before logging training status (default: 50)')
     parser.add_argument('--save-model', action='store_true', default=False,
                         help='For Saving the current Model')
+
+    parser.add_argument('--experiment-name', type=str, default = 'finetuning-classifier-on-paintings',
+                        help='Model experiment name')
+    parser.add_argument('--ver-name', type=str, default = 'paintings',
+                        help="Model experiment's version/run name")
 
     args = parser.parse_args()
     device = torch.device('cuda' if args.use_cuda and torch.cuda.is_available() else 'cpu')
