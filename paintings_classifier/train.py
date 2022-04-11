@@ -114,9 +114,9 @@ class LogPredictionsCallback(Callback):
     def on_train_end(self, trainer, module):
         eval_metrics = evaluate(module.val_dataloader(), module.model)
         df = pd.DataFrame(eval_metrics).transpose()
-        #print(list(df.columns), df.values.shape)
+        #print(eval_metri)
         trainer.logger.log_table(key="Evaluation metrics", columns=list(df.columns), data=df.values)
-        trainer.logger.experiment.summary(eval_metrics)
+        #trainer.logger.experiment.summary(eval_metrics)
         #trainer.logger.experiment.log(eval_metrics)
 
 

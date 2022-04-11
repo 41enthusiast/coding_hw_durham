@@ -141,13 +141,14 @@ def get_most_and_least_confident_predictions(model, loader, device):
             , dim=0
         )
         tgts = torch.cat(
-            (tgts, y.squeeze().to(device))
+            (tgts, y.to(device))
             , dim=0
         )
         all_images = torch.cat(
             (all_images, images.to(device)),
             dim=0
         )
+    #print(preds.shape, tgts.shape)
     confidence = (preds.sigmoid()-tgts).abs()
     print(confidence.shape)
 
