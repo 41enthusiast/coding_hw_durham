@@ -2,19 +2,21 @@ from facenet_pytorch import MTCNN, InceptionResnetV1, fixed_image_standardizatio
 from torchvision import transforms, datasets
 from matplotlib.patches import Rectangle
 import matplotlib.pyplot as plt
+import cv2
 import numpy as np
 from torch.utils.data import DataLoader
-import fastai
 from fastai.vision import *
 
 import argparse
 
 import os
 
-def download_and_setup_dataset_folder(data_dir):
+def download_and_setup_dataset_folder(args):
+    data_dir = args.data_dir
     path = Path('datasets/source_images')
     classes = []
     for fname in os.listdir(data_dir):
+        #print(fname)
         categ_name = fname.split('_urls')[0]#files should be in this format
         classes.append(categ_name)
         dest = path/categ_name
@@ -22,11 +24,13 @@ def download_and_setup_dataset_folder(data_dir):
         download_images(fname, dest, max_pics=1000)
         verify_images(path/categ_name, delete=True, max_size=1000)
 
+    args.data_dir = 'datasets/source_images'
+
 
 
 
 # draw an image with detected objects
-def annotated_images(img, folder_path, result_list, output_mode, output_folder='datasets_anno'):
+def annotated_images(img, folder_path, result_list, output_mode, output_folder):
     # plot the image as base
     img = transforms.ToTensor()(img).permute(1,2,0)
     plt.imshow(img)
@@ -40,6 +44,7 @@ def annotated_images(img, folder_path, result_list, output_mode, output_folder='
         # draw the box
         ax.add_patch(rect)
     img_path = output_folder+folder_path.split(output_mode)[1]
+    print(img_path)
     plt.xticks([])
     plt.yticks([])
     plt.axis('off')#need this to remove the axes for the final padding
@@ -48,70 +53,85 @@ def annotated_images(img, folder_path, result_list, output_mode, output_folder='
     plt.close('all')
 
 #crop out only the faces
-def face_crops(img, folder_path, result_list, output_mode, output_folder='datasets_cropped'):
+def face_crops(img, folder_path, result_list, output_mode, output_folder):
     # plot the image as base
     img = transforms.ToTensor()(img).permute(1,2,0)
     for i,result in enumerate(result_list):
         # get coordinates
         x0, y0, x1, y1 = result
-        #print(result)
+        print(result)
 
         #getting the cropped part of the image
-        x_coords = int(x0), int(x1)
-        y_coords = int(y0), int(y1)
+        relu = lambda x:x*(x>0)
+        x_coords = int(relu(x0)), int(relu(x1))
+        y_coords = int(relu(y0)), int(relu(y1))
         cropped_img = img[y_coords[0]:y_coords[1], x_coords[0]:x_coords[1]]
         #print(cropped_img.shape)
-        cropped_path = +folder_path.split(output_mode)[1].split('.')[0]+'_'+str(i)+'.jpg'
+        cropped_path =output_folder +folder_path.split(output_mode)[1].split('.')[0]+'_'+str(i)+'.jpg'
+        print(cropped_path)
         plt.imsave(cropped_path,cropped_img.numpy())
 
-def gen_MTCNN_processed_images(mtcnn, loader, save_type):
+def gen_MTCNN_processed_images(mtcnn, loader, save_type, data_dir):
     for i, (x, y) in enumerate(loader):#list of PIL images and image paths
         #print(x,y)
         boxes = mtcnn.detect(x)
         for x_i, y_i, box in zip(x,y, boxes[0]):
-            print(x_i.size)
+            #print(x_i.size)
             if type(box) != np.ndarray:#the no faces detected case
                 continue
             if save_type == 'annotated':
-                annotated_images(x_i, y_i, box, '_output' )
+                annotated_images(x_i, y_i, box,
+                 '_output',
+                  data_dir+'_'+'annotated' )
             elif save_type == 'cropped':
-                face_crops(x_i, y_i, box, '_output' )
+                face_crops(x_i, y_i, box,
+                 '_output',
+                 data_dir+'_'+'cropped' )
             elif save_type == 'all':
-                annotated_images(x_i, y_i, box, '_output' )
-                face_crops(x_i, y_i, box, '_output' )
+                annotated_images(x_i, y_i, box,
+                 '_output',
+                 data_dir+'_'+'annotated' )
+                face_crops(x_i, y_i, box,
+                 '_output',
+                 data_dir+'_'+'cropped' )
             #print('Image processed')
             
         print('\rBatch {} of {}'.format(i + 1, len(loader)), end='')
 
-def gen_single_face_images(mtcnn, loader, save_type, output_folder='datasets_single_face'):
+def gen_single_face_images(mtcnn, loader, save_type, data_dir):
     for i, (x, y) in enumerate(loader):#list of PIL images and image paths
         #print(x,y)
         boxes = mtcnn.detect(x)
         for x_i, y_i, box in zip(x,y, boxes[0]):
-            print(x_i.size)
+            #print(x_i.size)
             if type(box) != np.ndarray:#the no faces detected case
                 continue
             if len(box)==1:#if only a single face has been detected
                 if save_type == 'annotated':
-                    annotated_images(x_i, y_i, box, '_single' )
+                    annotated_images(x_i, y_i, box,
+                     '_single',
+                      data_dir+'_'+'annotated' )
                 elif save_type == 'cropped':
-                    face_crops(x_i, y_i, box, '_single' )
+                    face_crops(x_i, y_i, box,
+                     '_single',
+                     data_dir+'_'+'cropped' )
                 elif save_type == 'all':
-                    annotated_images(x_i, y_i, box, '_single' )
-                    face_crops(x_i, y_i, box )
-                    plt.imsave(output_folder+y_i.split('_single')[1], x_i)
+                    annotated_images(x_i, y_i, box, '_single',data_dir+'_'+'annotated' )
+                    face_crops(x_i, y_i, box,
+                    '_single',
+                    data_dir+'_'+'cropped' )
+                    print(data_dir+'_plain'+y_i.split('_single')[1])
+                    x_i.save(data_dir+'_plain'+y_i.split('_single')[1])
                 else:
-                    plt.imsave(output_folder+y_i.split('_single')[1], x_i)
+                    print(data_dir+'_plain'+y_i.split('_single')[1])
+                    x_i.save(data_dir+'_plain'+y_i.split('_single')[1])
             #print('Image processed')
             
         print('\rBatch {} of {}'.format(i + 1, len(loader)), end='')
 
 def setup_ds_dl(args, output_mode):
-    data_dir = args.data_dir+'_'+args.mode
-    img_size = args.img_size
-
-    #make the parent directories
-    os.makedirs(data_dir,exist_ok=True)
+    data_dir = args.data_dir
+    img_size = (args.image_size, args.image_size)
 
     #set up the dataset and dataloaders for the input data directory
     temp_transforms = transforms.Compose([transforms.Resize(img_size)])
@@ -129,9 +149,23 @@ def setup_ds_dl(args, output_mode):
         collate_fn=training.collate_pil
     )
 
-    #code to make the child directories
-    for categ in dataset.classes:
-        os.makedir(data_dir+'/'+categ)
+    #make the output parent and child directories
+    if args.output_mode=='multiple':
+        parent_output_dir = args.output_dir
+    else:
+        parent_output_dir = args.output_single_dir
+    if args.mode != 'all':
+        output_dir =output_dir+'_'+args.mode
+        os.makedirs(output_dir,exist_ok=True)
+        for categ in dataset.classes:
+            os.makedirs(output_dir+'/'+categ, exist_ok = True)
+    else:
+        for mode in ['annotated','cropped','plain']:
+            output_dir =parent_output_dir+'_'+mode
+            os.makedirs(output_dir,exist_ok=True)
+            for categ in dataset.classes:
+                os.makedirs(output_dir+'/'+categ, exist_ok = True)
+    
 
     return dataset, loader
 
@@ -145,7 +179,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--batch-size', type=int, default=16, metavar='N',
                         help='input batch size for training (default: 16)')
-    parser.add_argument('--num-workers', type=int, default=4, metavar='N',
+    parser.add_argument('--n-workers', type=int, default=4, metavar='N',
                         help='Number of workers (default: 4)')
 
     
@@ -167,7 +201,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.input_mode=='links':
-        download_and_setup_dataset_folder(args.data_dir)
+        args = download_and_setup_dataset_folder(args)
 
     if args.output_mode == 'multiple':
         output_mode = '_output'
@@ -179,8 +213,14 @@ if __name__ == '__main__':
     #setting up the MTCNN model here
     mtcnn = MTCNN(post_process=False, keep_all = True)
 
-    if output_mode == '_output':
-        gen_MTCNN_processed_images(mtcnn, loader, args.mode)
+    if args.output_mode=='multiple':
+        output_dir = args.output_dir
     else:
-        gen_single_face_images(mtcnn, loader, args.mode)
+        output_dir = args.output_single_dir
+    if output_mode == '_output':
+        gen_MTCNN_processed_images(mtcnn, loader, args.mode, output_dir)
+    else:
+        gen_single_face_images(mtcnn, loader, args.mode, output_dir)
+
+    print('program completed successfully')
 

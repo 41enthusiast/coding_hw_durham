@@ -1,6 +1,39 @@
-Traceback (most recent call last):
-  File "gen_datasets.py", line 177, in <module>
-    dataset, loader = setup_ds_dl(args, output_mode)
-  File "gen_datasets.py", line 111, in setup_ds_dl
-    img_size = args.img_size
-AttributeError: 'Namespace' object has no attribute 'img_size'
+wandb: Currently logged in as: mridulav (use `wandb login --relogin` to force relogin)
+wandb: Tracking run with wandb version 0.12.14
+wandb: Run data is saved locally in /home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/wandb/run-20220413_092817-1ijsfn9b
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run paintings
+wandb: ⭐️ View project at https://wandb.ai/mridulav/finetuning-classifier-on-paintings
+wandb: 🚀 View run at https://wandb.ai/mridulav/finetuning-classifier-on-paintings/runs/1ijsfn9b
+wandb: logging graph, to disable use `wandb.watch(log_graph=False)`
+GPU available: True, used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+
+  | Name  | Type              | Params
+--------------------------------------------
+0 | model | FinetunedModel    | 4.7 M 
+1 | loss  | BCEWithLogitsLoss | 0     
+--------------------------------------------
+656 K     Trainable params
+4.0 M     Non-trainable params
+4.7 M     Total params
+18.656    Total estimated model params size (MB)
+/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/torch/utils/data/dataloader.py:487: UserWarning: This DataLoader will create 32 worker processes in total. Our suggested max number of worker in current system is 4, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+wandb: Waiting for W&B process to finish... (success).
+wandb: - 12.862 MB of 12.862 MB uploaded (0.000 MB deduped)wandb: \ 12.862 MB of 12.862 MB uploaded (0.000 MB deduped)wandb: | 12.862 MB of 12.862 MB uploaded (0.000 MB deduped)wandb: / 12.862 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: - 12.862 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: \ 12.866 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: | 12.877 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: / 12.877 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: - 12.877 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: \ 12.877 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: | 12.877 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: / 12.877 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: - 12.877 MB of 12.877 MB uploaded (0.000 MB deduped)wandb:                                                                                
+wandb: 
+wandb: Run history:
+wandb:               epoch ▁▁▁▁▂▂▂▂▃▃▃▃▃▃▃▃▄▄▄▄▅▅▅▅▆▆▆▆▆▆▆▆▇▇▇▇████
+wandb: trainer/global_step ▁▁▂▂▂▂▂▂▂▃▃▃▃▄▄▄▄▄▄▄▅▅▅▅▅▆▆▆▆▇▇▇▇▇▇▇████
+wandb: 
+wandb: Run summary:
+wandb:               epoch 9
+wandb: trainer/global_step 39
+wandb: 
+wandb: Synced paintings: https://wandb.ai/mridulav/finetuning-classifier-on-paintings/runs/1ijsfn9b
+wandb: Synced 5 W&B file(s), 101 media file(s), 1 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20220413_092817-1ijsfn9b/logs

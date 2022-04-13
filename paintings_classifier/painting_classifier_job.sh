@@ -19,4 +19,9 @@ source mv_test1/bin/activate
 
 # Run the code
 
-python gen_datasets.py --mode all 
+#dataset generation
+#python gen_datasets.py --mode all 
+#python gen_datasets.py --output-mode multiple --mode all 
+
+#model training
+python train.py --ds-name datasets/single_faces_cropped --log-interval 1 --epochs 10

@@ -22,7 +22,7 @@ def evaluate(data_loader, model):
             y_pred = (model(X.cuda()).sigmoid() > 0.5).int().squeeze()#threshold of 0.5 chosen
             #print(y.shape, y_pred.shape)
             true_y.extend(y.squeeze().cpu())
-            pred_y.extend(y_pred.cpu())
+            pred_y.extend(y_pred.squeeze().cpu())
         true_y = torch.stack(true_y)
         pred_y = torch.stack(pred_y)
         print(true_y.shape, pred_y.shape)

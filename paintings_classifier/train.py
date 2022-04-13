@@ -32,7 +32,7 @@ class FinetunedClassifierModule(pl.LightningModule):
                                     self.hparam.hidden_size)
         self.loss = nn.BCEWithLogitsLoss()
         #self.device = device
-        
+
 
     def total_steps(self):
         return len(self.train_dataloader()) // self.hparam.epochs
@@ -159,6 +159,8 @@ def train(args, device):
                          log_every_n_steps=args.log_interval)  # need the last arg to log the training iterations per step
 
     trainer.fit(module)
+
+    print('finished training')
     
 
 
