@@ -1,15 +1,21 @@
 wandb: Currently logged in as: mridulav (use `wandb login --relogin` to force relogin)
 wandb: Tracking run with wandb version 0.12.14
-wandb: Run data is saved locally in /home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/wandb/run-20220413_092817-1ijsfn9b
+wandb: Run data is saved locally in /home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/wandb/run-20220413_130755-gkwql9h5
 wandb: Run `wandb offline` to turn off syncing.
 wandb: Syncing run paintings
-wandb: ⭐️ View project at https://wandb.ai/mridulav/finetuning-classifier-on-paintings
-wandb: 🚀 View run at https://wandb.ai/mridulav/finetuning-classifier-on-paintings/runs/1ijsfn9b
+wandb: ⭐️ View project at https://wandb.ai/mridulav/finetuning-classifier-on-paintings-temp
+wandb: 🚀 View run at https://wandb.ai/mridulav/finetuning-classifier-on-paintings-temp/runs/gkwql9h5
 wandb: logging graph, to disable use `wandb.watch(log_graph=False)`
 GPU available: True, used: True
 TPU available: False, using: 0 TPU cores
 IPU available: False, using: 0 IPUs
 HPU available: False, using: 0 HPUs
+/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/torch/cuda/__init__.py:145: UserWarning: 
+NVIDIA A100 80GB PCIe with CUDA capability sm_80 is not compatible with the current PyTorch installation.
+The current PyTorch install supports CUDA capabilities sm_37 sm_50 sm_60 sm_70.
+If you want to use the NVIDIA A100 80GB PCIe GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/
+
+  warnings.warn(incompatible_device_warn.format(device_name, capability, " ".join(arch_list), device_name))
 LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
 
   | Name  | Type              | Params
@@ -21,19 +27,70 @@ LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
 4.0 M     Non-trainable params
 4.7 M     Total params
 18.656    Total estimated model params size (MB)
-/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/torch/utils/data/dataloader.py:487: UserWarning: This DataLoader will create 32 worker processes in total. Our suggested max number of worker in current system is 4, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/torch/utils/data/dataloader.py:487: UserWarning: This DataLoader will create 64 worker processes in total. Our suggested max number of worker in current system is 4, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
   warnings.warn(_create_warning_msg(
-wandb: Waiting for W&B process to finish... (success).
-wandb: - 12.862 MB of 12.862 MB uploaded (0.000 MB deduped)wandb: \ 12.862 MB of 12.862 MB uploaded (0.000 MB deduped)wandb: | 12.862 MB of 12.862 MB uploaded (0.000 MB deduped)wandb: / 12.862 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: - 12.862 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: \ 12.866 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: | 12.877 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: / 12.877 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: - 12.877 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: \ 12.877 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: | 12.877 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: / 12.877 MB of 12.877 MB uploaded (0.000 MB deduped)wandb: - 12.877 MB of 12.877 MB uploaded (0.000 MB deduped)wandb:                                                                                
-wandb: 
-wandb: Run history:
-wandb:               epoch ▁▁▁▁▂▂▂▂▃▃▃▃▃▃▃▃▄▄▄▄▅▅▅▅▆▆▆▆▆▆▆▆▇▇▇▇████
-wandb: trainer/global_step ▁▁▂▂▂▂▂▂▂▃▃▃▃▄▄▄▄▄▄▄▅▅▅▅▅▆▆▆▆▇▇▇▇▇▇▇████
-wandb: 
-wandb: Run summary:
-wandb:               epoch 9
-wandb: trainer/global_step 39
-wandb: 
-wandb: Synced paintings: https://wandb.ai/mridulav/finetuning-classifier-on-paintings/runs/1ijsfn9b
-wandb: Synced 5 W&B file(s), 101 media file(s), 1 artifact file(s) and 0 other file(s)
-wandb: Find logs at: ./wandb/run-20220413_092817-1ijsfn9b/logs
+wandb: Waiting for W&B process to finish... (failed 1). Press Control-C to abort syncing.
+wandb: - 0.001 MB of 0.001 MB uploaded (0.000 MB deduped)wandb: \ 0.001 MB of 0.001 MB uploaded (0.000 MB deduped)wandb: | 0.001 MB of 0.004 MB uploaded (0.000 MB deduped)wandb: / 0.001 MB of 0.004 MB uploaded (0.000 MB deduped)wandb: - 0.001 MB of 0.004 MB uploaded (0.000 MB deduped)wandb: \ 0.004 MB of 0.004 MB uploaded (0.000 MB deduped)wandb: | 0.004 MB of 0.004 MB uploaded (0.000 MB deduped)wandb: / 0.004 MB of 0.004 MB uploaded (0.000 MB deduped)wandb: - 0.004 MB of 0.004 MB uploaded (0.000 MB deduped)wandb: \ 0.004 MB of 0.004 MB uploaded (0.000 MB deduped)wandb: | 0.004 MB of 0.004 MB uploaded (0.000 MB deduped)wandb: / 0.004 MB of 0.004 MB uploaded (0.000 MB deduped)wandb:                                                                                
+wandb: Synced paintings: https://wandb.ai/mridulav/finetuning-classifier-on-paintings-temp/runs/gkwql9h5
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20220413_130755-gkwql9h5/logs
+Traceback (most recent call last):
+  File "train.py", line 224, in <module>
+    train(args, device)
+  File "train.py", line 174, in train
+    trainer.fit(module)
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 771, in fit
+    self._call_and_handle_interrupt(
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 724, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 812, in _fit_impl
+    results = self._run(model, ckpt_path=self.ckpt_path)
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1237, in _run
+    results = self._run_stage()
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1324, in _run_stage
+    return self._run_train()
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1346, in _run_train
+    self._run_sanity_check()
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1407, in _run_sanity_check
+    val_loop._reload_evaluation_dataloaders()
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/loops/dataloader/evaluation_loop.py", line 239, in _reload_evaluation_dataloaders
+    self.trainer.reset_val_dataloader()
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1959, in reset_val_dataloader
+    self.num_val_batches, self.val_dataloaders = self._data_connector._reset_eval_dataloader(
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/connectors/data_connector.py", line 404, in _reset_eval_dataloader
+    len(dataloader) if has_len_all_ranks(dataloader, self.trainer.strategy, module) else float("inf")
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/utilities/data.py", line 126, in has_len_all_ranks
+    if total_length == 0:
+RuntimeError: CUDA error: no kernel image is available for execution on the device
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+Traceback (most recent call last):
+  File "train.py", line 224, in <module>
+    train(args, device)
+  File "train.py", line 174, in train
+    trainer.fit(module)
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 771, in fit
+    self._call_and_handle_interrupt(
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 724, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 812, in _fit_impl
+    results = self._run(model, ckpt_path=self.ckpt_path)
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1237, in _run
+    results = self._run_stage()
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1324, in _run_stage
+    return self._run_train()
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1346, in _run_train
+    self._run_sanity_check()
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1407, in _run_sanity_check
+    val_loop._reload_evaluation_dataloaders()
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/loops/dataloader/evaluation_loop.py", line 239, in _reload_evaluation_dataloaders
+    self.trainer.reset_val_dataloader()
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1959, in reset_val_dataloader
+    self.num_val_batches, self.val_dataloaders = self._data_connector._reset_eval_dataloader(
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/trainer/connectors/data_connector.py", line 404, in _reset_eval_dataloader
+    len(dataloader) if has_len_all_ranks(dataloader, self.trainer.strategy, module) else float("inf")
+  File "/home2/txlx81/new_repos/coding_hw_durham/paintings_classifier/mv_test1/lib/python3.8/site-packages/pytorch_lightning/utilities/data.py", line 126, in has_len_all_ranks
+    if total_length == 0:
+RuntimeError: CUDA error: no kernel image is available for execution on the device
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.

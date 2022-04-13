@@ -24,4 +24,4 @@ source mv_test1/bin/activate
 #python gen_datasets.py --output-mode multiple --mode all 
 
 #model training
-python train.py --ds-name datasets/single_faces_cropped --log-interval 1 --epochs 10
+python train.py --ds-name datasets/single_faces_cropped --log-interval 1 --epochs 1 --experiment-name finetuning-classifier-on-paintings-temp

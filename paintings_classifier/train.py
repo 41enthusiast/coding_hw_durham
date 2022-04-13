@@ -114,9 +114,22 @@ class LogPredictionsCallback(Callback):
     
     def on_train_end(self, trainer, module):
         eval_metrics = evaluate(module.val_dataloader(), module.model)
-        df = pd.DataFrame(eval_metrics).transpose()
-        #print(eval_metri)
-        trainer.logger.log_table(key="Evaluation metrics", columns=list(df.columns), data=df.values)
+        classes = module.hparam.class_names
+        data=[]
+        tkeys = list(eval_metrics.keys())
+        print(tkeys, len(classes))
+        print(eval_metrics)
+
+        labels = ['Category Name']+list(eval_metrics[tkeys[0]].keys())
+        for i in range(len(classes)):
+            data[i].append(eval_metrics[tkeys[i]].values())
+
+        #df = pd.DataFrame(eval_metrics).transpose()
+        
+        
+        trainer.logger.log_table(key="Evaluation metrics", columns=list(labels), data=data)
+        
+        module.log('total_accuracy', eval_metrics['accurcy'])
         #trainer.logger.experiment.summary(eval_metrics)
         #trainer.logger.experiment.log(eval_metrics)
 
