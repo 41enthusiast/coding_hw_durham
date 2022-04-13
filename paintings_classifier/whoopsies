@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "gen_datasets.py", line 177, in <module>
+    dataset, loader = setup_ds_dl(args, output_mode)
+  File "gen_datasets.py", line 111, in setup_ds_dl
+    img_size = args.img_size
+AttributeError: 'Namespace' object has no attribute 'img_size'
