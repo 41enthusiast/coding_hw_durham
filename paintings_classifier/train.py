@@ -99,7 +99,7 @@ class LogPredictionsCallback(Callback):
 
     def on_validation_batch_end(self, trainer, module, outputs, batch, batch_idx, dataloader_idx):
 
-        #confusion matrix
+        # confusion matrix
         cm = make_confusion_matrix(module, module.val_dataloader(), module.device)
         cm_img = plot_confusion_matrix(cm, module.hparam.class_names)
         trainer.logger.log_image(key='Confusion matrix', images = [cm_img], caption=['Confusion matrix for shakespeare and queen victoria images'])
@@ -111,25 +111,23 @@ class LogPredictionsCallback(Callback):
         mc_captions = [f'Confidence score: {score}' for score in mc_scores]
         trainer.logger.log_image(key='Most Confident Images', images=[img for img in mc_imgs], caption=mc_captions)
     
-    
     def on_train_end(self, trainer, module):
         eval_metrics = evaluate(module.val_dataloader(), module.model)
-        classes = module.hparam.class_names
+        #classes = module.hparam.class_names
         data=[]
-        tkeys = list(eval_metrics.keys())
-        print(tkeys, len(classes))
+        #tkeys = list(eval_metrics.keys())
+        #print(tkeys, len(classes))
         print(eval_metrics)
 
-        labels = ['Category Name']+list(eval_metrics[tkeys[0]].keys())
-        for i in range(len(classes)):
-            data[i].append(eval_metrics[tkeys[i]].values())
+        #labels = ['Category Name']+list(eval_metrics[tkeys[0]].keys())
+        #for i in range(len(classes)):
+        #    data[i].append(eval_metrics[tkeys[i]].values())
 
         #df = pd.DataFrame(eval_metrics).transpose()
         
+        #trainer.logger.log_table(key="Evaluation metrics", columns=list(labels), data=data)
         
-        trainer.logger.log_table(key="Evaluation metrics", columns=list(labels), data=data)
-        
-        module.log('total_accuracy', eval_metrics['accurcy'])
+        #module.log('total_accuracy', eval_metrics['accurcy'])
         #trainer.logger.experiment.summary(eval_metrics)
         #trainer.logger.experiment.log(eval_metrics)
 
@@ -176,12 +174,11 @@ def train(args, device):
     print('finished training')
     
 
-
 if __name__ == '__main__':
 
     warnings.filterwarnings("ignore", "(Possibly )?corrupt EXIF data", UserWarning)
 
-    #add an option to do hyperparameter search (the lr finetuning bit)
+    # add an option to do hyperparameter search (the lr finetuning bit)
     # Training settings
     parser = argparse.ArgumentParser(description='Paintings Classifier')
 

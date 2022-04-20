@@ -1,3 +1,13 @@
 Loaded pretrained weights for efficientnet-b0
 Freezing embeddings
-Sanity Checking: 0it [00:00, ?it/s]
+Sanity Checking: 0it [00:00, ?it/s]Sanity Checking DataLoader 0:   0%|          | 0/1 [00:01<?, ?it/s]torch.Size([13, 1])
+Sanity Checking DataLoader 0: 100%|██████████| 1/1 [00:05<00:00,  5.23s/it]                                                                           Training: 0it [00:00, ?it/s]Epoch 0:   0%|          | 0/5 [00:00<?, ?it/s]Epoch 0:  20%|██        | 1/5 [00:01<00:06,  1.70s/it]Epoch 0:  20%|██        | 1/5 [00:01<00:06,  1.70s/it, loss=0.707, v_num=j4c4]Epoch 0:  40%|████      | 2/5 [00:01<00:02,  1.10it/s, loss=0.707, v_num=j4c4]Epoch 0:  40%|████      | 2/5 [00:01<00:02,  1.10it/s, loss=0.723, v_num=j4c4]Epoch 0:  60%|██████    | 3/5 [00:01<00:01,  1.53it/s, loss=0.723, v_num=j4c4]Epoch 0:  60%|██████    | 3/5 [00:01<00:01,  1.53it/s, loss=0.617, v_num=j4c4]Epoch 0:  80%|████████  | 4/5 [00:02<00:00,  1.82it/s, loss=0.617, v_num=j4c4]Epoch 0:  80%|████████  | 4/5 [00:02<00:00,  1.82it/s, loss=0.579, v_num=j4c4]
+Validation: 0it [00:00, ?it/s][A
+Validation DataLoader 0:   0%|          | 0/1 [00:00<?, ?it/s][Atorch.Size([13, 1])
+
+Validation DataLoader 0: 100%|██████████| 1/1 [00:04<00:00,  4.41s/it][AEpoch 0: 100%|██████████| 5/5 [00:06<00:00,  1.36s/it, loss=0.579, v_num=j4c4]Epoch 0: 100%|██████████| 5/5 [00:06<00:00,  1.36s/it, loss=0.579, v_num=j4c4]
+                                                                      [AEpoch 0: 100%|██████████| 5/5 [00:06<00:00,  1.36s/it, loss=0.579, v_num=j4c4]/torch.Size([13]) torch.Size([13])
+{'0.0': {'precision': 0.5, 'recall': 0.1111111111111111, 'f1-score': 0.1818181818181818, 'support': 9}, '1.0': {'precision': 0.2727272727272727, 'recall': 0.75, 'f1-score': 0.39999999999999997, 'support': 4}, 'accuracy': 0.3076923076923077, 'macro avg': {'precision': 0.38636363636363635, 'recall': 0.4305555555555556, 'f1-score': 0.2909090909090909, 'support': 13}, 'weighted avg': {'precision': 0.43006993006993005, 'recall': 0.3076923076923077, 'f1-score': 0.24895104895104894, 'support': 13}}
+Epoch 0: 100%|██████████| 5/5 [00:08<00:00,  1.68s/it, loss=0.579, v_num=j4c4]
+finished training
+
